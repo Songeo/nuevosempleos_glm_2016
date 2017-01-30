@@ -1,0 +1,41 @@
+model{
+  # • Likelihood 
+  for (i in 1:n) {
+  	y[i] ~ dpois(mu[i])
+  	mu[i] <- exp(eta[i])
+  	eta[i] <- alpha + 
+  	  beta.sector[sector[i]] + 
+  	  beta.t[i]
+  }
+  
+  # • State eqs.
+  for (i in (nsec+1):n) {
+  	beta.t[i] ~ ddexp(beta.t[i-nsec], tau.t)
+  }
+  tau.t ~ dgamma(100, .01)
+  
+  # • Priors
+  for(k in 1:nsec){  
+    beta.t[k] ~ dnorm(0, 0.01)
+    #beta.t[k] ~ dnorm(mu.tinit, tau.tinit)
+  }
+  #mu.tinit ~ dnorm(0, .001)
+  #tau.tinit ~ dgamma(100, .01)
+  
+  # intercept general
+  alpha ~ dnorm(0, 0.001)
+
+  # intercept por sector
+  for(k in 1:nsec){
+    beta.sector[k] ~ dnorm(mus, taus)  # normal
+    beta.sector.adj[k] <- beta.sector[k]-mean(beta.sector[])
+  }
+  mus ~ dnorm(0, .01)
+  taus ~ dgamma(.0100, .0100)
+  
+  # • Adjusted
+  for(i in 1:n){
+    yf[i] ~ dpois(mu[i])
+  }
+
+}
